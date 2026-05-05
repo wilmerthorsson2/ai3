@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math AI – Verktygsrecension</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f1a;
+      --bg2: #131626;
+      --bg3: #1a1e32;
+      --accent: #4f8ef7;
+      --accent2: #a78bfa;
+      --accent3: #34d399;
+      --text: #e8eaf6;
+      --muted: #8892b0;
+      --border: rgba(79,142,247,0.18);
+      --card: rgba(255,255,255,0.04);
+      --glow: rgba(79,142,247,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── STARFIELD ── */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(79,142,247,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 90%, rgba(167,139,250,0.06) 0%, transparent 60%);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 3rem;
+      background: rgba(13,15,26,0.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); font-size: 0.85rem; text-decoration: none;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 92vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(79,142,247,0.12);
+      border: 1px solid rgba(79,142,247,0.3);
+      border-radius: 2rem;
+      padding: 0.35rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem; color: var(--accent);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.8s ease both;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      animation: fadeUp 0.9s 0.1s ease both;
+    }
+    .hero h1 em { color: var(--accent); font-style: italic; }
+    .hero-sub {
+      max-width: 580px; margin: 1.8rem auto 2.5rem;
+      color: var(--muted); font-size: 1.1rem;
+      animation: fadeUp 0.9s 0.2s ease both;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: var(--accent); color: #fff;
+      padding: 0.85rem 2.2rem; border-radius: 0.5rem;
+      font-weight: 600; font-size: 0.9rem; text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 30px rgba(79,142,247,0.35);
+      animation: fadeUp 0.9s 0.3s ease both;
+    }
+    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 40px rgba(79,142,247,0.5); }
+
+    .hero-img {
+      margin-top: 4rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(79,142,247,0.1);
+      max-width: min(900px, 90vw);
+      width: 100%;
+      animation: fadeUp 1s 0.4s ease both;
+    }
+
+    /* ── SECTION SHELL ── */
+    section {
+      position: relative; z-index: 1;
+      padding: 6rem 2rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.1; letter-spacing: -0.02em;
+      color: var(--text); margin-bottom: 1.2rem;
+    }
+    .section-body { color: var(--muted); max-width: 680px; font-size: 1rem; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      position: relative; z-index: 1;
+    }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      position: relative; z-index: 1;
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 2rem;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: 'DM Serif Display', serif;
+      font-size: 3rem; color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label { font-size: 0.82rem; color: var(--muted); margin-top: 0.4rem; letter-spacing: 0.04em; }
+
+    /* ── FEATURE GRID ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .feat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .feat-card:hover { border-color: rgba(79,142,247,0.5); transform: translateY(-4px); }
+    .feat-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .feat-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; color: var(--text); }
+    .feat-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── HOW IT WORKS ── */
+    .steps { display: flex; flex-direction: column; gap: 0; margin-top: 3rem; }
+    .step {
+      display: grid; grid-template-columns: 3rem 1fr;
+      gap: 1.5rem; padding: 2rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem; color: var(--accent);
+      letter-spacing: 0.06em; padding-top: 0.2rem;
+      text-align: right;
+    }
+    .step-content h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+    .step-content p { font-size: 0.9rem; color: var(--muted); }
+
+    /* ── TOPICS ── */
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+      margin-top: 3rem;
+    }
+    .topic-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.8rem;
+      padding: 1.5rem;
+    }
+    .topic-card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.8rem; color: var(--accent2); }
+    .topic-card ul { list-style: none; }
+    .topic-card li {
+      font-size: 0.83rem; color: var(--muted);
+      padding: 0.2rem 0;
+      padding-left: 1rem; position: relative;
+    }
+    .topic-card li::before {
+      content: '—'; position: absolute; left: 0;
+      color: var(--border); font-size: 0.7rem;
+    }
+
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .price-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2.5rem 2rem;
+      position: relative;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .price-card:hover { transform: translateY(-4px); }
+    .price-card.featured {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(167,139,250,0.06));
+      box-shadow: 0 0 40px rgba(79,142,247,0.12);
+    }
+    .price-badge {
+      position: absolute; top: -0.7rem; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff;
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.2rem 0.9rem; border-radius: 1rem;
+    }
+    .price-name { font-family: 'DM Serif Display', serif; font-size: 1.6rem; margin-bottom: 0.5rem; }
+    .price-amount { font-size: 2.5rem; font-weight: 700; color: var(--accent); line-height: 1; }
+    .price-amount span { font-size: 0.9rem; font-weight: 400; color: var(--muted); }
+    .price-per { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .price-features { list-style: none; }
+    .price-features li {
+      font-size: 0.87rem; color: var(--muted);
+      padding: 0.45rem 0;
+      display: flex; align-items: center; gap: 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .price-features li:last-child { border-bottom: none; }
+    .check { color: var(--accent3); font-size: 1rem; }
+    .price-btn {
+      display: block; width: 100%;
+      margin-top: 2rem; padding: 0.75rem;
+      border-radius: 0.5rem; text-align: center;
+      font-size: 0.88rem; font-weight: 600; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .price-btn-ghost {
+      border: 1px solid var(--border); color: var(--muted);
+      background: transparent;
+    }
+    .price-btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+    .price-btn-solid {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 4px 20px rgba(79,142,247,0.3);
+    }
+    .price-btn-solid:hover { opacity: 0.88; }
+
+    /* ── AUDIENCE ── */
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-top: 3rem;
+    }
+    .aud-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.8rem;
+      padding: 1.5rem;
+      text-align: center;
+      transition: border-color 0.3s;
+    }
+    .aud-card:hover { border-color: rgba(167,139,250,0.4); }
+    .aud-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+    .aud-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+    .aud-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── LIMITATIONS ── */
+    .lim-list { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+    .lim-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.8rem;
+      padding: 1.2rem 1.5rem;
+    }
+    .lim-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .lim-text { font-size: 0.9rem; color: var(--muted); }
+    .lim-text strong { color: var(--text); display: block; margin-bottom: 0.2rem; font-size: 0.95rem; }
+
+    /* ── PROCESS NOTES ── */
+    .process-block {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2.5rem;
+      margin-top: 3rem;
+    }
+    .process-block p { color: var(--muted); font-size: 0.95rem; margin-bottom: 1rem; }
+    .process-block p:last-child { margin-bottom: 0; }
+    .img-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+    .img-caption {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 0.8rem;
+      overflow: hidden;
+    }
+    .img-caption img { width: 100%; display: block; object-fit: cover; height: 160px; }
+    .img-caption figcaption {
+      padding: 0.8rem 1rem;
+      font-size: 0.78rem; color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── VERDICT ── */
+    .verdict-box {
+      margin-top: 3rem;
+      background: linear-gradient(135deg, rgba(79,142,247,0.08) 0%, rgba(52,211,153,0.05) 100%);
+      border: 1px solid rgba(79,142,247,0.25);
+      border-radius: 1.2rem;
+      padding: 3rem;
+      text-align: center;
+    }
+    .verdict-box p { max-width: 640px; margin: 1rem auto 2rem; color: var(--muted); }
+    .verdict-link {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--accent); color: #fff;
+      padding: 0.85rem 2.2rem; border-radius: 0.5rem;
+      font-weight: 600; font-size: 0.9rem; text-decoration: none;
+      transition: opacity 0.2s;
+      box-shadow: 0 4px 30px rgba(79,142,247,0.35);
+    }
+    .verdict-link:hover { opacity: 0.88; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      text-align: center;
+      color: var(--muted); font-size: 0.8rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE NAV ── */
+    @media (max-width: 640px) {
+      nav { padding: 1rem 1.2rem; }
+      .nav-links { gap: 1rem; }
+      .step { grid-template-columns: 2.5rem 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<!-- ── NAVIGATION ── -->
+<nav>
+  <div class="nav-logo">Math<em style="color:var(--accent2)">AI</em></div>
+  <ul class="nav-links">
+    <li><a href="#om">Om</a></li>
+    <li><a href="#funktioner">Funktioner</a></li>
+    <li><a href="#amnen">Ämnen</a></li>
+    <li><a href="#pris">Pris</a></li>
+    <li><a href="#bedomning">Utvärdering</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-badge">🤖 AI-verktygsrecension</div>
+  <h1>Math <em>AI</em></h1>
+  <p class="hero-sub">
+    En AI-driven mattehjälp som löser allt från grundläggande aritmetik
+    till avancerad kalkyl – steg för steg, dygnet runt.
+  </p>
+  <a href="https://math-gpt.ai" target="_blank" class="hero-cta">
+    Besök math-gpt.ai →
+  </a>
+  <img
+    class="hero-img"
+    src="https://files.math-gpt.ai/math-ai-screenshot.png"
+    alt="Math AI gränssnitt"
+    onerror="this.style.display='none'"
+  />
+</div>
+
+<div class="divider"></div>
+
+<!-- ── STATS ── -->
+<div class="stats-strip">
+  <div>
+    <div class="stat-val">100M+</div>
+    <div class="stat-label">Lösta matteproblem</div>
+  </div>
+  <div>
+    <div class="stat-val">98%</div>
+    <div class="stat-label">Noggrannhet</div>
+  </div>
+  <div>
+    <div class="stat-val">1M+</div>
+    <div class="stat-label">Aktiva studenter</div>
+  </div>
+  <div>
+    <div class="stat-val">24/7</div>
+    <div class="stat-label">Alltid tillgänglig</div>
+  </div>
+</div>
+
+<!-- ── OM VERKTYGET ── -->
+<section id="om">
+  <div class="section-label">// Vad är Math AI?</div>
+  <h2 class="section-title">Din personliga<br/>mattetutor – online</h2>
+  <p class="section-body">
+    Math AI (math-gpt.ai) är ett AI-drivet verktyg som hjälper studenter, lärare och yrkespersoner
+    att lösa matematikproblem på ett intuitivt sätt. Verktyget kombinerar avancerad bildigenkänning
+    med en kraftfull AI-motor som inte bara ger svaret – utan förklarar varje steg i lösningsprocessen.
+    Sidan drivs av ett US-baserat bolag med servrar i Kalifornien.
+  </p>
+  <p class="section-body" style="margin-top:1rem;">
+    Verktyget täcker allt från enkel aritmetik till universitetsnivåkalkyl, differentialekvationer
+    och linjär algebra. Problemet kan matas in via text, foto eller PDF.
+  </p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── MÅLGRUPP ── -->
+<section>
+  <div class="section-label">// Målgrupp</div>
+  <h2 class="section-title">Vem är det till för?</h2>
+  <div class="audience-grid">
+    <div class="aud-card">
+      <div class="aud-icon">🎓</div>
+      <div class="aud-title">Gymnasieelever</div>
+      <div class="aud-desc">Hjälp med läxor, prov och svåra begrepp i algebra och geometri.</div>
+    </div>
+    <div class="aud-card">
+      <div class="aud-icon">🏫</div>
+      <div class="aud-title">Universitetsstudenter</div>
+      <div class="aud-desc">Avancerad kalkyl, statistik och linjär algebra – med detaljerade förklaringar.</div>
+    </div>
+    <div class="aud-card">
+      <div class="aud-icon">👩‍🏫</div>
+      <div class="aud-title">Lärare</div>
+      <div class="aud-desc">Snabb lösningsgenerering för att kontrollera svar och skapa exempeluppgifter.</div>
+    </div>
+    <div class="aud-card">
+      <div class="aud-icon">👨‍👩‍👧</div>
+      <div class="aud-title">Föräldrar</div>
+      <div class="aud-desc">Stötta dina barn med matematik utan att själv behöva vara expert.</div>
+    </div>
+    <div class="aud-card">
+      <div class="aud-icon">🔬</div>
+      <div class="aud-title">Yrkespersoner</div>
+      <div class="aud-desc">Ingenjörer och forskare kan verifiera beräkningar och arbeta mer effektivt.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FUNKTIONER ── -->
+<section id="funktioner">
+  <div class="section-label">// Funktioner</div>
+  <h2 class="section-title">Vad kan<br/>Math AI göra?</h2>
+  <div class="feature-grid">
+    <div class="feat-card">
+      <div class="feat-icon">📸</div>
+      <div class="feat-title">Foto-igenkänning</div>
+      <div class="feat-desc">Ta ett foto på ett handskrivet eller tryckt problem och få svar direkt. 99,9% igenkänningsnoggrannhet.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📝</div>
+      <div class="feat-title">Textinmatning</div>
+      <div class="feat-desc">Skriv in ekvationer med det inbyggda matematiska tangentbordet som stöder LaTeX-symboler.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📄</div>
+      <div class="feat-title">PDF-uppladdning</div>
+      <div class="feat-desc">Ladda upp ett helt matematiskt dokument eller läxblad och låt AI:n analysera det.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔢</div>
+      <div class="feat-title">Steg-för-steg-lösning</div>
+      <div class="feat-desc">Förstå processen, inte bara svaret. Varje steg förklaras tydligt med motiveringar.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🧪</div>
+      <div class="feat-title">Fysik & Kemi AI</div>
+      <div class="feat-desc">Utöver matematik erbjuder tjänsten specialiserade verktyg för fysik, kemi och biologi.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📱</div>
+      <div class="feat-title">Mobilanpassad</div>
+      <div class="feat-desc">Fungerar felfritt på alla enheter – telefon, surfplatta och dator – utan app att ladda ner.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── SÅ HÄR FUNGERAR DET ── -->
+<section>
+  <div class="section-label">// Hur det fungerar</div>
+  <h2 class="section-title">Tre steg till<br/>lösningen</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <h3>Mata in ditt problem</h3>
+        <p>Ta ett foto med mobilen, ladda upp en bild/PDF, eller skriv in ekvationen direkt via det inbyggda matematiktangentbordet. Alla tre metoderna stöds fullt ut.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <h3>AI-analys och bearbetning</h3>
+        <p>Modellen identifierar problemtyp och väljer rätt lösningsmetod automatiskt. Bildigenkänningen hanterar allt från handskrift till komplexa LaTeX-formler.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <h3>Detaljerad lösning levereras</h3>
+        <p>Du får ett komplett svar med steg-för-steg-förklaringar, alternativa lösningsmetoder och relaterade övningsuppgifter för djupare inlärning.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── ÄMNEN ── -->
+<section id="amnen">
+  <div class="section-label">// Ämnesområden</div>
+  <h2 class="section-title">Vad kan du<br/>be om hjälp med?</h2>
+  <div class="topics-grid">
+    <div class="topic-card">
+      <h3>Grundläggande matematik</h3>
+      <ul>
+        <li>Aritmetik</li>
+        <li>Bråk & decimaler</li>
+        <li>Procent</li>
+        <li>Grundläggande geometri</li>
+        <li>Talteori</li>
+      </ul>
+    </div>
+    <div class="topic-card">
+      <h3>Algebra</h3>
+      <ul>
+        <li>Linjära ekvationer</li>
+        <li>Andragradsekvationer</li>
+        <li>Ekvationssystem</li>
+        <li>Olikheter</li>
+        <li>Polynom & funktioner</li>
+      </ul>
+    </div>
+    <div class="topic-card">
+      <h3>Kalkyl</h3>
+      <ul>
+        <li>Derivator</li>
+        <li>Integraler</li>
+        <li>Gränsvärden</li>
+        <li>Serier</li>
+        <li>Differentialekvationer</li>
+      </ul>
+    </div>
+    <div class="topic-card">
+      <h3>Avancerat</h3>
+      <ul>
+        <li>Linjär algebra</li>
+        <li>Statistik & sannolikhet</li>
+        <li>Trigonometri</li>
+        <li>Komplexa tal</li>
+        <li>Diskret matematik</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── PRISSÄTTNING ── -->
+<section id="pris">
+  <div class="section-label">// Prissättning</div>
+  <h2 class="section-title">Planer &<br/>Begränsningar</h2>
+  <p class="section-body">
+    Math AI använder ett kreditbaserat system – varje löst problem kostar 1 kredit.
+    Betalda planer faktureras årsvis (med 50% rabatt) eller månadsvis.
+  </p>
+  <div class="pricing-grid">
+    <!-- FREE -->
+    <div class="price-card">
+      <div class="price-name">Free</div>
+      <div class="price-amount">$0<span>/mån</span></div>
+      <div class="price-per">Alltid gratis</div>
+      <ul class="price-features">
+        <li><span class="check">✓</span> 5 krediter per dag</li>
+        <li><span class="check">✓</span> Alla ämnen & verktyg</li>
+        <li><span class="check">✓</span> Steg-för-steg-lösningar</li>
+        <li style="color:#555">✗ Ingen prioriterad hastighet</li>
+        <li style="color:#555">✗ Reklam visas</li>
+      </ul>
+      <a href="https://math-gpt.ai" target="_blank" class="price-btn price-btn-ghost">Prova gratis</a>
+    </div>
+    <!-- LITE -->
+    <div class="price-card">
+      <div class="price-name">Lite</div>
+      <div class="price-amount">$3.90<span>/mån</span></div>
+      <div class="price-per">~$46.80 / år · (ord. $7.90/mån)</div>
+      <ul class="price-features">
+        <li><span class="check">✓</span> 500 krediter per månad</li>
+        <li><span class="check">✓</span> Alla ämnen & verktyg</li>
+        <li><span class="check">✓</span> Prioriterad hastighet</li>
+        <li><span class="check">✓</span> Ingen reklam</li>
+        <li><span class="check">✓</span> Full support</li>
+      </ul>
+      <a href="https://math-gpt.ai/pricing" target="_blank" class="price-btn price-btn-ghost">Välj Lite</a>
+    </div>
+    <!-- PRO -->
+    <div class="price-card featured">
+      <div class="price-badge">Populärast</div>
+      <div class="price-name">Pro</div>
+      <div class="price-amount">$5.90<span>/mån</span></div>
+      <div class="price-per">~$70.80 / år · (ord. $11.90/mån)</div>
+      <ul class="price-features">
+        <li><span class="check">✓</span> <strong style="color:var(--accent)">Obegränsat</strong> antal krediter</li>
+        <li><span class="check">✓</span> Alla ämnen & verktyg</li>
+        <li><span class="check">✓</span> Prioriterad hastighet</li>
+        <li><span class="check">✓</span> Ingen reklam</li>
+        <li><span class="check">✓</span> Full support</li>
+      </ul>
+      <a href="https://math-gpt.ai/pricing" target="_blank" class="price-btn price-btn-solid">Välj Pro</a>
+    </div>
+  </div>
+  <p style="margin-top:1.5rem; color:var(--muted); font-size:0.82rem; font-family:'DM Mono',monospace;">
+    * Betalning via Visa, Mastercard, Amex, Apple Pay, Google Pay och Amazon Pay. Avsluta när som helst.
+  </p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── BEGRÄNSNINGAR ── -->
+<section>
+  <div class="section-label">// Begränsningar</div>
+  <h2 class="section-title">Vad bör du<br/>tänka på?</h2>
+  <div class="lim-list">
+    <div class="lim-item">
+      <div class="lim-icon">⚡</div>
+      <div class="lim-text">
+        <strong>Daglig kreditgräns på gratisplanen</strong>
+        Gratis-kontot ger bara 5 krediter per dag, vilket snabbt tar slut vid intensivt användande.
+        Behöver man mer krävs en betald plan.
+      </div>
+    </div>
+    <div class="lim-item">
+      <div class="lim-icon">🌐</div>
+      <div class="lim-text">
+        <strong>Kräver internetuppkoppling</strong>
+        Math AI är en webbaserad tjänst och fungerar inte offline. Alla beräkningar sker i molnet.
+      </div>
+    </div>
+    <div class="lim-item">
+      <div class="lim-icon">🎓</div>
+      <div class="lim-text">
+        <strong>Akademisk hederlighetspolicy</strong>
+        Verktyget rekommenderar att det används som lärostöd snarare än för att bara kopiera svar.
+        Många skolor och högskolor förbjuder oinspirerat AI-bruk vid examinationsuppgifter.
+      </div>
+    </div>
+    <div class="lim-item">
+      <div class="lim-icon">🔤</div>
+      <div class="lim-text">
+        <strong>Gränssnitt på engelska</strong>
+        Webbplatsen och lösningarna presenteras på engelska. Inget officiellt stöd för svenska förklaringar finns i nuläget.
+      </div>
+    </div>
+    <div class="lim-item">
+      <div class="lim-icon">📊</div>
+      <div class="lim-text">
+        <strong>Noggrannhet kan variera</strong>
+        Trots den uppgivna 98%-noggrannheten kan AI-modeller göra fel, särskilt på ovanliga problemtyper.
+        Kontrollera alltid kritiska uträkningar med en annan källa.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── PROCESS / DOKUMENTATION ── -->
+<section>
+  <div class="section-label">// Processen</div>
+  <h2 class="section-title">Dokumentation<br/>av arbetet</h2>
+  <div class="process-block">
+    <p>
+      <strong style="color:var(--text)">Steg 1 – Research</strong><br/>
+      Vi besökte math-gpt.ai och kartlade verktygets funktioner, syfte och prissättning direkt från webbplatsen.
+      Sidan hämtades och analyserades för att säkerställa korrekt information.
+    </p>
+    <p>
+      <strong style="color:var(--text)">Steg 2 – Innehållsgenerering</strong><br/>
+      AI användes för att strukturera och formulera presentationstexterna på svenska, med utgångspunkt i
+      de faktiska uppgifterna från math-gpt.ai. Ingen information hittades på.
+    </p>
+    <p>
+      <strong style="color:var(--text)">Steg 3 – Webbsidans utformning</strong><br/>
+      Sidan designades med ett modernt, mörkt tema inspirerat av tech-startups. Prioritet lades på
+      tydlighet, informationshierarki och responsiv layout för alla skärmstorlekar.
+    </p>
+    <p>
+      <strong style="color:var(--text)">Steg 4 – Utvärdering</strong><br/>
+      Verktyget testades praktiskt och begränsningar identifierades, såsom kreditgränsen på gratisplanen
+      och avsaknad av officiellt svenska-stöd.
+    </p>
+    <div class="img-row">
+      <figure class="img-caption">
+        <img src="https://files.math-gpt.ai/math-ai-demo.png" alt="Math AI demo" onerror="this.style.background='#1a1e32'; this.style.height='160px'" />
+        <figcaption>Skärmbild: Math AI lösningsgränssnitt</figcaption>
+      </figure>
+      <figure class="img-caption">
+        <img src="https://files.math-gpt.ai/math-ai-screenshot.png" alt="Math AI screenshot" onerror="this.style.background='#1a1e32'; this.style.height='160px'" />
+        <figcaption>Skärmbild: Startsidan på math-gpt.ai</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── SAMLAD BEDÖMNING ── -->
+<section id="bedomning">
+  <div class="section-label">// Utvärdering</div>
+  <h2 class="section-title">Samlad<br/>bedömning</h2>
+  <p class="section-body">
+    Math AI är ett imponerande och lättillgängligt verktyg för alla som vill få hjälp med matematik.
+    Gratis-nivån passar elever som behöver stöd ibland, medan Pro-planen är rätt val för dagliga
+    tunga användare. Steg-för-steg-förklaringarna gör det till ett genuint läromedel snarare
+    än ett fusk-verktyg.
+  </p>
+  <div class="verdict-box">
+    <h2 class="section-title" style="margin-bottom:0">Redo att prova?</h2>
+    <p>
+      Besök math-gpt.ai och lös ditt första matteproblem gratis – utan registrering.
+      Verktyget stöder foto, text och PDF och levererar svar på sekunder.
+    </p>
+    <a href="https://math-gpt.ai" target="_blank" class="verdict-link">
+      Gå till math-gpt.ai →
+    </a>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>Presentationssida skapad för skoluppgift · Källmaterial: <a href="https://math-gpt.ai" target="_blank">math-gpt.ai</a> · 2026</p>
+  <p style="margin-top:0.5rem; color:rgba(136,146,176,0.5)">Ej affilierad med Math AI eller dess ägare.</p>
+</footer>
+
+</body>
+</html>
