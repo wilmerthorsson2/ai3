@@ -56,3 +56,9 @@ body {
   font-weight: bold;
   color: #0078d4;
 }
+.screenshot {
+  width: 100%;
+  display: block;
+  object-fit: contain;   /* hela bilden visas, inget beskärs */
+  background: #f5f6fa;   /* ljus bakgrund matchar bildens bakgrund */
+}
